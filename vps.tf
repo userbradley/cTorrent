@@ -30,6 +30,20 @@ resource "openstack_networking_secgroup_rule_v2" "icmp" {
   security_group_id = openstack_networking_secgroup_v2.inbound.id
 }
 
+
+
+resource "openstack_blockstorage_volume_v2" "vol_1" {
+  size = 10
+  name = "test"
+}
+
+resource "openstack_blockstorage_volume_attach_v2" "volume_1" {
+  host_name = openstack_compute_instance_v2.torrentbox.name
+  volume_id = openstack_blockstorage_volume_v2.vol_1.id
+  os_type = "Linux2"
+  device = "auto"
+}
+
 # https://jira.breadnet.co.uk/browse/CTOR-4
 resource "openstack_compute_instance_v2" "torrentbox" {
   name            = "torrent-box"
@@ -40,4 +54,8 @@ resource "openstack_compute_instance_v2" "torrentbox" {
   network {
     name = "Ext-Net"
   }
+}
+
+output "ip" {
+  value = openstack_compute_instance_v2.torrentbox.access_ip_v4
 }
