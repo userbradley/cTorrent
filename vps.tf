@@ -23,26 +23,21 @@ resource "openstack_networking_secgroup_rule_v2" "inbound_ssh" {
 
 # https://jira.breadnet.co.uk/browse/CTOR-7
 resource "openstack_networking_secgroup_rule_v2" "icmp" {
-  direction = "ingress"
-  ethertype = "IPv4"
-  remote_ip_prefix = var.ip
-  protocol = "icmp"
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_ip_prefix  = var.ip
+  protocol          = "icmp"
   security_group_id = openstack_networking_secgroup_v2.inbound.id
 }
 
 
 
 resource "openstack_blockstorage_volume_v2" "vol_1" {
-  size = 10
-  name = "test"
+  size = 100
+  name = "Storage"
 }
 
-resource "openstack_blockstorage_volume_attach_v2" "volume_1" {
-  host_name = openstack_compute_instance_v2.torrentbox.name
-  volume_id = openstack_blockstorage_volume_v2.vol_1.id
-  os_type = "Linux2"
-  device = "auto"
-}
+
 
 # https://jira.breadnet.co.uk/browse/CTOR-4
 resource "openstack_compute_instance_v2" "torrentbox" {
@@ -51,11 +46,29 @@ resource "openstack_compute_instance_v2" "torrentbox" {
   key_pair        = openstack_compute_keypair_v2.key.name
   image_name      = "Ubuntu 18.04"
   security_groups = [openstack_networking_secgroup_v2.inbound.id]
+
+  block_device {
+    source_type           = "image"
+    uuid                  = "e49b8632-94f8-4878-9c34-852992b11710"
+    destination_type      = "local"
+    boot_index            = 0
+    delete_on_termination = true
+  }
+
+  block_device {
+    uuid                  = openstack_blockstorage_volume_v2.vol_1.id
+    source_type           = "volume"
+    destination_type      = "volume"
+    boot_index            = 1
+    delete_on_termination = true
+  }
+
+
+
   network {
     name = "Ext-Net"
   }
 }
-
 output "ip" {
   value = openstack_compute_instance_v2.torrentbox.access_ip_v4
 }
