@@ -22,3 +22,11 @@ This will <sup>hopefully</sup> hopefully do a few things:
 # Will it work?
 
 Probably not - Guess stay tuned. This is an internal tool that I have released for "Public release"
+
+# What you need
+
+1. Terraform 
+2. Ansible
+3. S3 bucket
+
+[fix for the auth issues](https://breadnet.co.uk/terraform-ovh-openstack/)
